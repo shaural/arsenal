@@ -24,6 +24,15 @@ Agents are autonomous subagents that can be delegated to for specific tasks. Age
 - System prompt (what the agent's mission is and how it should approach work)
 - Description should be specific about when Claude should delegate to this agent
 
+### Hooks
+Hooks are event handlers that ship with the plugin and run automatically once it's installed — no user-level `settings.json` edits needed. They live in `hooks/hooks.json` at the plugin root, with their command scripts under `scripts/hooks/`.
+
+**Hook conventions:**
+- Reference scripts with `${CLAUDE_PLUGIN_ROOT}` (e.g. `node "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/branch-guard.js"`).
+- Hook scripts read their event payload as JSON on **stdin** (`tool_input`, `message`, etc.) — not from env vars.
+- Exit codes matter for `PreToolUse`: exit `2` is a **blocking** error (stderr is fed back to Claude, the tool call is denied); any other non-zero is non-blocking. Bookkeeping hooks (`Stop`, `Notification`) should always exit `0` and fail open.
+- Runtime artifacts hooks write (e.g. `.claude/current-issue.txt`, `.claude/logs/`) belong in `.gitignore`.
+
 ### Plugin Manifest
 The plugin configuration is in `.claude-plugin/plugin.json`:
 - `name` — plugin identifier
