@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "arsenal",
+  "owner": {
+    "name": "Shaural",
+    "email": "shauralpatel@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "arsenal",
+      "source": "./",
+      "description": "Personal plugin toolkit — skills, commands, and agents for daily dev workflows"
+    }
+  ]
+}
