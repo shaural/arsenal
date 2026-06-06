@@ -61,6 +61,7 @@ The Linear state moves with you: `start` → **In Progress**, `ship` → **In Re
 | Command | What it does |
 | --- | --- |
 | `/arsenal:orient` | Read-only standup view: Active / Up Next / Pipeline, plus a best-next-issue suggestion. |
+| `/arsenal:create-issue` | Draft and save a new Linear issue from a rough idea — produces an implementation-ready spec before saving. |
 | `/arsenal:context [SHA-X]` | Render the full spec for an issue (infers the ID from the branch if omitted). |
 | `/arsenal:start SHA-X` | Check out the issue's branch and move it to **In Progress**. |
 | `/arsenal:enhance-issue SHA-X` | Score the issue 1–5 and rewrite it to implementation-ready, preserving every existing decision (asks before writing). |
@@ -84,6 +85,7 @@ The Linear state moves with you: `start` → **In Progress**, `ship` → **In Re
 A typical loop:
 
 ```
+/arsenal:create-issue      # rough idea -> implementation-ready spec -> saved to Backlog
 /arsenal:orient            # what should I work on?
 /arsenal:start SHA-6       # branch + In Progress
 # ...implement, or delegate to the developer agent...
@@ -155,6 +157,7 @@ Set it as your status line command in your Claude Code settings:
 │   └── example.md         # Agent template
 ├── skills/
 │   ├── orient/            # Standup view of active/queued work
+│   ├── create-issue/      # Draft and save a new issue from a rough idea
 │   ├── context/           # Load an issue's full spec
 │   ├── start/             # Branch + move issue to In Progress
 │   ├── enhance-issue/     # Score and rewrite an issue
