@@ -45,7 +45,51 @@ Run `/reload-plugins` after edits to pick up changes without restarting.
 | --- | --- | --- |
 | **Skills** | `skills/<name>/SKILL.md` | User-triggered actions invoked as `/arsenal:<skill-name>` |
 | **Agents** | `agents/<name>.md` | Autonomous subagents Claude delegates to for focused tasks |
+| **Hooks** | `hooks/hooks.json` + `scripts/hooks/` | Event handlers that ship with the plugin (branch guard, issue tracking, notification log) |
 | **Scripts** | `scripts/` | Helper scripts (e.g. the custom status line) |
+
+## Linear dev workflow
+
+Arsenal layers a full dev loop — **orient → start → implement → ship → review → merge** — on top of [Linear](https://linear.app) (via the Linear MCP server) and the `commit-push-pr` skill. The issue's `sha-<n>` branch name ties everything together: most skills infer the active issue from the current branch, so you rarely type the ID twice.
+
+The Linear state moves with you: `start` → **In Progress**, `ship` → **In Review** (PR attached). You review and merge the PR yourself, and **merging moves the issue to Done automatically** — `ship` embeds a `Fixes SHA-X` link in the PR body, so Linear's GitHub PR automation completes the issue on merge. No manual "mark done" step. (`land` is kept only as a fallback for when that automation isn't connected.)
+
+> **One-time setup for auto-Done:** connect Linear's [GitHub integration](https://linear.app/docs/github) and enable **Pull request automation** for your team so merged PRs complete their linked issues. Until that's on, run `/arsenal:land` after merging.
+
+### Skills
+
+| Command | What it does |
+| --- | --- |
+| `/arsenal:orient` | Read-only standup view: Active / Up Next / Pipeline, plus a best-next-issue suggestion. |
+| `/arsenal:context [SHA-X]` | Render the full spec for an issue (infers the ID from the branch if omitted). |
+| `/arsenal:start SHA-X` | Check out the issue's branch and move it to **In Progress**. |
+| `/arsenal:enhance-issue SHA-X` | Score the issue 1–5 and rewrite it to implementation-ready, preserving every existing decision (asks before writing). |
+| `/arsenal:ship [SHA-X]` | Run `commit-push-pr` (issue-scoped commit/PR title), then move the issue to **In Review** and attach the PR. |
+| `/arsenal:land [SHA-X]` | *Fallback.* Verify the PR is merged and move the issue to **Done** manually — only needed when Linear's auto-Done-on-merge isn't connected. |
+
+### Agents
+
+| Agent | Delegate when you say… | Does |
+| --- | --- | --- |
+| `developer` | "implement SHA-X in the background / a worktree" | Implements an issue autonomously in an isolated worktree, commits locally, posts a Linear summary. Never pushes or PRs. |
+| `reviewer` | "review PR #X" | Focused PR review with inline GitHub comments. Leaves the verdict to you. |
+| `tester` | "test SHA-X" | Runs the test suite and maps results to the issue's acceptance criteria. |
+
+### Hooks (automatic, ship with the plugin)
+
+- **branch-guard** — blocks `git push` while on `main`/`master`, so work always flows through a feature branch.
+- **track-issue** — records the active issue to `.claude/current-issue.txt` whenever you're on a `sha-<n>` branch. Surface it in a project's `CLAUDE.md` with `Current issue: !cat .claude/current-issue.txt`.
+- **log-notify** — appends Claude Code notifications (e.g. a background agent finishing) to `.claude/logs/notifications.log`.
+
+A typical loop:
+
+```
+/arsenal:orient            # what should I work on?
+/arsenal:start SHA-6       # branch + In Progress
+# ...implement, or delegate to the developer agent...
+/arsenal:ship              # commit, push, PR (Fixes SHA-6), In Review + PR attached
+# ...you review and merge the PR on GitHub -> Linear auto-moves it to Done...
+```
 
 ## Status line
 
@@ -105,11 +149,23 @@ Set it as your status line command in your Claude Code settings:
 │   ├── plugin.json        # Plugin manifest (name, version, skill dirs)
 │   └── marketplace.json   # Marketplace entry so the repo is directly installable
 ├── agents/
+│   ├── developer.md       # Implements an issue in an isolated worktree
+│   ├── reviewer.md        # Reviews a GitHub PR
+│   ├── tester.md          # Validates an implementation against acceptance criteria
 │   └── example.md         # Agent template
 ├── skills/
-│   └── example/
-│       └── SKILL.md       # Skill template
+│   ├── orient/            # Standup view of active/queued work
+│   ├── context/           # Load an issue's full spec
+│   ├── start/             # Branch + move issue to In Progress
+│   ├── enhance-issue/     # Score and rewrite an issue
+│   ├── ship/              # commit-push-pr + move issue to In Review
+│   ├── land/              # Fallback: verify PR merged + move issue to Done
+│   ├── commit-push-pr/    # Commit, push, open a PR
+│   └── example/           # Skill template
+├── hooks/
+│   └── hooks.json         # Registers the plugin's PreToolUse/Stop/Notification hooks
 ├── scripts/
+│   ├── hooks/             # branch-guard, track-issue, log-notify (Node.js, no deps)
 │   ├── statusline.js      # Custom status line (Node.js, no deps)
 │   └── statusline.sh      # Legacy shell status line
 └── CLAUDE.md              # Guidance for Claude Code in this repo
