@@ -50,9 +50,11 @@ Run `/reload-plugins` after edits to pick up changes without restarting.
 
 ## Linear dev workflow
 
-Arsenal layers a full dev loop — **orient → start → implement → ship → review → merge → land** — on top of [Linear](https://linear.app) (via the Linear MCP server) and the `commit-push-pr` skill. The issue's `sha-<n>` branch name ties everything together: most skills infer the active issue from the current branch, so you rarely type the ID twice.
+Arsenal layers a full dev loop — **orient → start → implement → ship → review → merge** — on top of [Linear](https://linear.app) (via the Linear MCP server) and the `commit-push-pr` skill. The issue's `sha-<n>` branch name ties everything together: most skills infer the active issue from the current branch, so you rarely type the ID twice.
 
-The Linear state moves with you: `start` → **In Progress**, `ship` → **In Review** (PR attached), and — only after *you* review and merge the PR yourself — `land` → **Done**. Nothing in the workflow marks an issue Done automatically, and `land` verifies the PR is actually merged before it does.
+The Linear state moves with you: `start` → **In Progress**, `ship` → **In Review** (PR attached). You review and merge the PR yourself, and **merging moves the issue to Done automatically** — `ship` embeds a `Fixes SHA-X` link in the PR body, so Linear's GitHub PR automation completes the issue on merge. No manual "mark done" step. (`land` is kept only as a fallback for when that automation isn't connected.)
+
+> **One-time setup for auto-Done:** connect Linear's [GitHub integration](https://linear.app/docs/github) and enable **Pull request automation** for your team so merged PRs complete their linked issues. Until that's on, run `/arsenal:land` after merging.
 
 ### Skills
 
@@ -63,7 +65,7 @@ The Linear state moves with you: `start` → **In Progress**, `ship` → **In Re
 | `/arsenal:start SHA-X` | Check out the issue's branch and move it to **In Progress**. |
 | `/arsenal:enhance-issue SHA-X` | Score the issue 1–5 and rewrite it to implementation-ready, preserving every existing decision (asks before writing). |
 | `/arsenal:ship [SHA-X]` | Run `commit-push-pr` (issue-scoped commit/PR title), then move the issue to **In Review** and attach the PR. |
-| `/arsenal:land [SHA-X]` | After you've merged the PR: verify it's merged, move the issue to **Done**, and optionally tidy the branch. |
+| `/arsenal:land [SHA-X]` | *Fallback.* Verify the PR is merged and move the issue to **Done** manually — only needed when Linear's auto-Done-on-merge isn't connected. |
 
 ### Agents
 
@@ -85,9 +87,8 @@ A typical loop:
 /arsenal:orient            # what should I work on?
 /arsenal:start SHA-6       # branch + In Progress
 # ...implement, or delegate to the developer agent...
-/arsenal:ship              # commit, push, PR, In Review + PR attached
-# ...you review and merge the PR on GitHub...
-/arsenal:land              # verify merged, issue -> Done, tidy the branch
+/arsenal:ship              # commit, push, PR (Fixes SHA-6), In Review + PR attached
+# ...you review and merge the PR on GitHub -> Linear auto-moves it to Done...
 ```
 
 ## Status line
@@ -158,7 +159,7 @@ Set it as your status line command in your Claude Code settings:
 │   ├── start/             # Branch + move issue to In Progress
 │   ├── enhance-issue/     # Score and rewrite an issue
 │   ├── ship/              # commit-push-pr + move issue to In Review
-│   ├── land/              # Verify PR merged + move issue to Done
+│   ├── land/              # Fallback: verify PR merged + move issue to Done
 │   ├── commit-push-pr/    # Commit, push, open a PR
 │   └── example/           # Skill template
 ├── hooks/

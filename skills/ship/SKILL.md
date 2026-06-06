@@ -22,9 +22,14 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(gi
    - If neither yields an ID, ask the user and stop until you have one.
 
 2. Read `skills/commit-push-pr/SKILL.md` and execute every step in it exactly as
-   written, with one change: prefix the commit subject and PR title scope with the
-   issue identifier. Example commit: `feat(sha-6): build v1 Chase CSV import flow`.
-   Example PR title: `feat(sha-6): build v1 Chase CSV import flow`.
+   written, with two changes:
+   - Prefix the commit subject and PR title scope with the issue identifier.
+     Example commit: `feat(sha-6): build v1 Chase CSV import flow`.
+     Example PR title: `feat(sha-6): build v1 Chase CSV import flow`.
+   - **Include a Linear magic-word line in the PR body** so the issue is auto-moved
+     to Done when the PR merges. Add, on its own line near the top of the body:
+     `Fixes SHA-<n>` (use the real identifier, e.g. `Fixes SHA-6`). This links the
+     PR to the issue and lets Linear's GitHub PR automation complete it on merge.
    If `commit-push-pr` reports there is nothing to commit, stop and say so.
 
 3. Once the PR URL is available:
@@ -33,8 +38,10 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(gi
       (`issueId`, `url` = PR URL, `title` = the PR title) so the link shows on the card.
 
 4. Report: commit hash, branch, PR URL, and confirmation that Linear was updated to
-   In Review with the PR attached. Remind the user that after they review and merge
-   the PR, `/arsenal:land` will move the issue to Done.
+   In Review with the PR attached. Tell the user that **when they merge the PR, Linear
+   will move the issue to Done automatically** (via the `Fixes SHA-<n>` link). No
+   manual step is needed; `/arsenal:land` exists only as a fallback if the Linear↔GitHub
+   automation isn't connected.
 
 ## Notes
 
@@ -42,3 +49,7 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(gi
   around it — create a feature branch first per `commit-push-pr`, then retry.
 - If there is no GitHub remote, stop after the local commit and report; do not touch
   Linear, since there is no PR to attach.
+- The automatic merge → Done move requires Linear's GitHub integration to be connected
+  and **Pull request automation** enabled for the team (one-time setup in Linear). If
+  that isn't configured, the issue stays in In Review after merge — run `/arsenal:land`
+  to move it to Done manually.

@@ -1,17 +1,20 @@
 ---
 name: land
-description: Move a Linear issue to Done after its PR is merged. Use when the user
-  says "land SHA-X", "mark SHA-X done", "SHA-X is merged", "close out SHA-X", "finish
-  SHA-X", "I merged the PR". Verifies the PR is actually merged before flipping the
-  issue to Done, then optionally tidies up the merged branch.
+description: Manual fallback to move a Linear issue to Done after its PR is merged.
+  Normally Linear's GitHub PR automation handles this on merge (ship embeds a
+  `Fixes SHA-X` link); use land only when that automation isn't connected or the PR
+  was merged outside it. Triggers: "land SHA-X", "mark SHA-X done", "SHA-X is merged",
+  "close out SHA-X", "the issue didn't auto-close". Verifies the PR is actually merged
+  before flipping the issue to Done, then optionally tidies up the merged branch.
 allowed-tools: Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git pull:*), Bash(git fetch:*), Bash(gh pr view:*), Bash(gh pr list:*), mcp__claude_ai_Linear__get_issue, mcp__claude_ai_Linear__save_issue
 ---
 
 # land
 
-Closes the loop after a PR is merged: this is the only step that moves a Linear
-issue to **Done**. `ship` stops at **In Review** so the user can review and merge
-manually; `land` is run afterward.
+**Fallback only.** The normal path is automatic: `ship` puts a `Fixes SHA-X` link in
+the PR body, so when you merge, Linear's GitHub PR automation moves the issue to
+**Done** on its own. Run `land` only when that automation isn't set up, or a PR was
+merged outside GitHub and the issue is still sitting in In Review.
 
 ## Context
 
