@@ -33,7 +33,8 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(gi
       (`issueId`, `url` = PR URL, `title` = the PR title) so the link shows on the card.
 
 4. Report: commit hash, branch, PR URL, and confirmation that Linear was updated to
-   In Review with the PR attached.
+   In Review with the PR attached. Remind the user that after they review and merge
+   the PR, `/arsenal:land` will move the issue to Done.
 
 ## Notes
 

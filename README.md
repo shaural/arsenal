@@ -50,7 +50,9 @@ Run `/reload-plugins` after edits to pick up changes without restarting.
 
 ## Linear dev workflow
 
-Arsenal layers a full dev loop — **orient → start → implement → ship → review → test** — on top of [Linear](https://linear.app) (via the Linear MCP server) and the `commit-push-pr` skill. The issue's `sha-<n>` branch name ties everything together: most skills infer the active issue from the current branch, so you rarely type the ID twice.
+Arsenal layers a full dev loop — **orient → start → implement → ship → review → merge → land** — on top of [Linear](https://linear.app) (via the Linear MCP server) and the `commit-push-pr` skill. The issue's `sha-<n>` branch name ties everything together: most skills infer the active issue from the current branch, so you rarely type the ID twice.
+
+The Linear state moves with you: `start` → **In Progress**, `ship` → **In Review** (PR attached), and — only after *you* review and merge the PR yourself — `land` → **Done**. Nothing in the workflow marks an issue Done automatically, and `land` verifies the PR is actually merged before it does.
 
 ### Skills
 
@@ -61,6 +63,7 @@ Arsenal layers a full dev loop — **orient → start → implement → ship →
 | `/arsenal:start SHA-X` | Check out the issue's branch and move it to **In Progress**. |
 | `/arsenal:enhance-issue SHA-X` | Score the issue 1–5 and rewrite it to implementation-ready, preserving every existing decision (asks before writing). |
 | `/arsenal:ship [SHA-X]` | Run `commit-push-pr` (issue-scoped commit/PR title), then move the issue to **In Review** and attach the PR. |
+| `/arsenal:land [SHA-X]` | After you've merged the PR: verify it's merged, move the issue to **Done**, and optionally tidy the branch. |
 
 ### Agents
 
@@ -83,6 +86,8 @@ A typical loop:
 /arsenal:start SHA-6       # branch + In Progress
 # ...implement, or delegate to the developer agent...
 /arsenal:ship              # commit, push, PR, In Review + PR attached
+# ...you review and merge the PR on GitHub...
+/arsenal:land              # verify merged, issue -> Done, tidy the branch
 ```
 
 ## Status line
@@ -153,6 +158,7 @@ Set it as your status line command in your Claude Code settings:
 │   ├── start/             # Branch + move issue to In Progress
 │   ├── enhance-issue/     # Score and rewrite an issue
 │   ├── ship/              # commit-push-pr + move issue to In Review
+│   ├── land/              # Verify PR merged + move issue to Done
 │   ├── commit-push-pr/    # Commit, push, open a PR
 │   └── example/           # Skill template
 ├── hooks/
